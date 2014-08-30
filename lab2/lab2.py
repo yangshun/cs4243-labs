@@ -1,22 +1,23 @@
+# CS4243 Lab 2
+# ===================
+# Name: Tay Yang Shun
+# Matric: A0073063M
+
 import cv2
 
-image = cv2.imread('scene.jpg', cv2.CV_LOAD_IMAGE_GRAYSCALE)
+ORIGINAL_FILE = 'scene.jpg'
 
-feature_list = cv2.goodFeaturesToTrack(image, 200, 0.001, 11.0)
+RADIUS = 3
+THICKNESS = -1
+LINE_TYPE = 8
+SHIFT = 0
 
-image = cv2.imread('scene.jpg', cv2.CV_LOAD_IMAGE_COLOR)
+image = cv2.imread(ORIGINAL_FILE, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+feature_list = cv2.goodFeaturesToTrack(image, 200, 0.001, 11.0).reshape((-1,2))
 
-width = image.shape[1] 
-height = image.shape[0]
-
-feature_list = feature_list.reshape((-1,2))
+image = cv2.imread(ORIGINAL_FILE, cv2.CV_LOAD_IMAGE_COLOR)
 
 for (x, y) in feature_list:
-  center = (x, y)
-  radius = 3
-  thickness = -1 # negative means filled
-  lineType = 8
-  shift = 0
-  cv2.circle(image, center, radius, (0, 0, 255, 0), thickness, lineType, shift)
+  cv2.circle(image, (x, y), RADIUS, (0, 78, 255, 0), THICKNESS, LINE_TYPE, SHIFT)
 
-cv2.imwrite('features.jpg', image)
+cv2.imwrite('corners.jpg', image)
