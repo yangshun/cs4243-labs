@@ -18,6 +18,6 @@ feature_list = cv2.goodFeaturesToTrack(image, 200, 0.001, 11.0).reshape((-1,2))
 image = cv2.imread(ORIGINAL_FILE, cv2.CV_LOAD_IMAGE_COLOR)
 
 for (x, y) in feature_list:
-  cv2.circle(image, (x, y), RADIUS, (0, 78, 255, 0), THICKNESS, LINE_TYPE, SHIFT)
+  cv2.circle(image, (x, y), RADIUS, (255, 255, 255, 0), THICKNESS, LINE_TYPE, SHIFT)
 
 cv2.imwrite('corners.jpg', image)
