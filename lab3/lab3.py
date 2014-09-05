@@ -59,7 +59,7 @@ print feat2
 
 im1 = cv2.imread(IMAGE_1_FILENAME, cv2.CV_LOAD_IMAGE_COLOR)
 cv2.namedWindow('Picture1')
-for (x, y) in feat2:
+for (x, y) in feat1:
   cv2.circle(im1, (int(x), int(y)), 3, (255, 255, 255), -1)
 
 cv2.imshow("Picture1", im1)
@@ -67,7 +67,7 @@ cv2.imwrite(IMAGE_1_TRACKING_FILENAME, im1)
 
 im2 = cv2.imread(IMAGE_2_FILENAME, cv2.CV_LOAD_IMAGE_COLOR)
 cv2.namedWindow('Picture2')
-for (x, y) in feat1:
+for (x, y) in feat2:
   cv2.circle(im2, (int(x), int(y)), 3, (255, 255, 255), -1)
 
 cv2.imshow("Picture2", im2)
