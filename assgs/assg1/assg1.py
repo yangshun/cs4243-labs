@@ -16,51 +16,49 @@ IMAGE_FILE_NAME = sys.argv[1]
 INTENSITY_RANGE = 256
 
 image = cv2.imread(IMAGE_FILE_NAME, cv2.CV_LOAD_IMAGE_GRAYSCALE)
-height, width = image.shape
 
-flattened_image = image.reshape(1, -1)[0] # Convert to 1-d array
+# Convert to 1-d array
+flattened_image = image.reshape(1, -1)[0]
 
+# Calculate intensity frequency histogram
 freq = [0] * 256
 for px in flattened_image:
   freq[px] += 1
 bin_size = sum(freq) // INTENSITY_RANGE
 
+# Calculate cumulative frequency of each intensity
 cum_freq = [0] * INTENSITY_RANGE
 cum_freq[0] = freq[0]
 for i in range(1, INTENSITY_RANGE):
-  # Calculates cumulative frequency of each intensity
   cum_freq[i] = cum_freq[i-1] + freq[i]
 
+# Generate a list of tuples: (equalized_intensity, original_img_intensity)
 freq_temp = []
 for i in range(INTENSITY_RANGE):
   limit = bin_size * i
-  index = 0
   for j, f in list(enumerate(cum_freq)):
     if limit <= f:
       freq_temp.append((i, j))
       break
 freq_temp.append((None, 256))
 
-freq_range_mapping = []
+# Generates a dictionary which maps original_img_intensity to equalized_intensity
+freq_map = {}
+orig_intensity_breakpoints = [f[1] for f in freq_temp]
 for i in range(INTENSITY_RANGE):
-  if freq_temp[i][1] == freq_temp[i+1][1]:
-    freq_range_mapping.append((i, (freq_temp[i][1], freq_temp[i][1])))
+  if i in orig_intensity_breakpoints:
+    freq_map[i] = [f[0] for f in freq_temp if f[1] == i]
   else:
-    freq_range_mapping.append((i, (freq_temp[i][1], freq_temp[i+1][1]-1)))
+    for j in range(INTENSITY_RANGE):
+      if freq_temp[j+1][1] > i:
+        freq_map[i] = [freq_temp[j][0]]
+        break 
 
-freq_map = {} # Dict that maps original intensity to a list of possible equalized intensities
-for i in freq_range_mapping:
-  new_intensity = i[0]
-  for orig_intensity in range(i[1][0], i[1][1]+1):
-    if orig_intensity in freq_map:
-      freq_map[orig_intensity].append(new_intensity)
-    else:
-      freq_map[orig_intensity] = [new_intensity]
-
+# Iterate through original image and replace with new intensity values 
 for px in np.nditer(image, op_flags=['readwrite']):
-  # Iterate through image and replace with new intensity values 
   px[...] = random.sample(freq_map[int(px)], 1)[0]
 
+# Save new histogram equalized image
 file_name, file_extension = IMAGE_FILE_NAME.split('.')
 new_file_name = file_name + '-equalized.' + file_extension
 cv2.imwrite(new_file_name, image)
