@@ -58,9 +58,8 @@ for i in freq_range_mapping:
       freq_map[orig_intensity] = [new_intensity]
 
 for px in np.nditer(image, op_flags=['readwrite']):
-  # Iterate through image and replace with new intensity values
-  new_value = random.sample(freq_map[int(px)], 1)[0]
-  px[...] = new_value
+  # Iterate through image and replace with new intensity values 
+  px[...] = random.sample(freq_map[int(px)], 1)[0]
 
 file_name, file_extension = IMAGE_FILE_NAME.split('.')
 new_file_name = file_name + '-equalized.' + file_extension
