@@ -26,6 +26,7 @@ frame_height = int(frame_height)
 fps = int(fps)
 frame_count = int(frame_count)
 
+
 _, img = cap.read()
 avgImg = np.float32(img)
 
@@ -56,6 +57,9 @@ for fr in range(frame_count):
 
   bgtemp = cv2.erode(biImg, None, iterations=3)
   thresh2, bg = cv2.threshold(bgtemp, 2, 255, cv2.THRESH_BINARY_INV)
+
+  cv2.imshow('Foreground Image', res)
+  cv2.waitKey(10)
   
 fg = res
 
