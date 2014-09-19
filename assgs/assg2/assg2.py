@@ -31,13 +31,13 @@ colored_image = cv2.imread(IMAGE_FILE_NAME, cv2.CV_LOAD_IMAGE_COLOR)
 image = cv2.imread(IMAGE_FILE_NAME, cv2.CV_LOAD_IMAGE_GRAYSCALE)
 img_height, img_width = image.shape
 
-def padImageBorder(img):
+def pad_image_border(img):
   # Gives an extra border to the right and bottom of the image
   return np.lib.pad(img, ((0, 1), (0, 1)), 'edge').astype(int)
 
 # Calculate dI/dx for each pixel
 print 'Calculating dI/dx value for each pixel...'
-image_Ix = padImageBorder(np.copy(image))
+image_Ix = pad_image_border(np.copy(image))
 for y in range(img_height):
   for x in range(img_width):
     image_Ix[y][x] = image_Ix[y][x+1] - image_Ix[y][x]
@@ -45,7 +45,7 @@ print 'Done calculating dI/dx values!'
 
 # Calculate dI/dy for each pixel
 print 'Calculating dI/dy value for each pixel...'
-image_Iy = padImageBorder(np.copy(image))
+image_Iy = pad_image_border(np.copy(image))
 for i in range(img_height):
   for j in range(img_width):
     image_Iy[i][j] = image_Iy[i+1][j] - image_Iy[i][j]
