@@ -20,12 +20,15 @@ TRACKING_CORNER_COUNT = 200
 # Minimum possible Euclidean distance between the returned corners
 TRACKING_MIN_DISTANCE = 9.0
 
+# Threshold
+THRESHOLD = 0.001
+
 WINDOW_SIZE = 5
 
-CIRCLE_COLOR = (0, 0, 255, 0)
-CIRCLE_THICKNESS = 1
-CIRCLE_LINE_TYPE = 8
-CIRCLE_SHIFT = 0
+SQUARE_COLOR = (0, 0, 255, 0)
+SQUARE_THICKNESS = 2
+SQUARE_LINE_TYPE = 8
+SQUARE_SHIFT = 0
 
 colored_image = cv2.imread(IMAGE_FILE_NAME, cv2.CV_LOAD_IMAGE_COLOR)
 image = cv2.imread(IMAGE_FILE_NAME, cv2.CV_LOAD_IMAGE_GRAYSCALE)
@@ -54,9 +57,10 @@ print 'Done calculating dI/dy values!'
 image_eigenvalues = np.zeros(image.shape)
 print 'Calculating minimum eigenvalues...'
 count = 1
-total_pixels = (img_height - 2*WINDOW_SIZE) * (img_width - 2*WINDOW_SIZE)
-for y in range(WINDOW_SIZE, img_height - WINDOW_SIZE):
-  for x in range(WINDOW_SIZE, img_width - WINDOW_SIZE):
+total_pixels = len(range(WINDOW_SIZE, img_height - WINDOW_SIZE, WINDOW_SIZE)) * \
+                len(range(WINDOW_SIZE, img_width - WINDOW_SIZE, WINDOW_SIZE))
+for y in range(WINDOW_SIZE, img_height - WINDOW_SIZE, WINDOW_SIZE):
+  for x in range(WINDOW_SIZE, img_width - WINDOW_SIZE, WINDOW_SIZE):
     print 'Calculating minimum eigenvalues:', round(float(count) / total_pixels * 100, 4), '% complete'
     mat = np.zeros((2, 2))
     for v in range(y - WINDOW_SIZE, y + WINDOW_SIZE):
@@ -75,9 +79,10 @@ print 'Done calculating minimum eigenvalues!'
 eigenvalues_data = []
 
 # Get a list of eigenvalues and its pixel coordinates
-for y in range(WINDOW_SIZE, img_height - WINDOW_SIZE):
-  for x in range(WINDOW_SIZE, img_width - WINDOW_SIZE):
-    eigenvalues_data.append([image_eigenvalues[y][x], (int(x), int(y))])
+for y in range(WINDOW_SIZE, img_height - WINDOW_SIZE, WINDOW_SIZE):
+  for x in range(WINDOW_SIZE, img_width - WINDOW_SIZE, WINDOW_SIZE):
+    if image_eigenvalues[y][x] > THRESHOLD:
+      eigenvalues_data.append([image_eigenvalues[y][x], (int(x), int(y))])
 
 corners_list = sorted(eigenvalues_data, key=lambda e: e[0], reverse=True)
 
@@ -98,8 +103,8 @@ for i in range(TRACKING_CORNER_COUNT):
 
 for (eig, pt) in top_corners_list:
   cv2.rectangle(colored_image, (pt[0]-WINDOW_SIZE, pt[1]-WINDOW_SIZE), \
-                (pt[0]+WINDOW_SIZE, pt[1]+WINDOW_SIZE), CIRCLE_COLOR, \
-                CIRCLE_THICKNESS, CIRCLE_LINE_TYPE, CIRCLE_SHIFT)
+                (pt[0]+WINDOW_SIZE, pt[1]+WINDOW_SIZE), SQUARE_COLOR, \
+                SQUARE_THICKNESS, SQUARE_LINE_TYPE, SQUARE_SHIFT)
 
 # Save new image with good features indicated
 file_name, file_extension = IMAGE_FILE_NAME.split('.')
