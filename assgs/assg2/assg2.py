@@ -23,7 +23,8 @@ TRACKING_MIN_DISTANCE = 9.0
 # Threshold
 THRESHOLD = 0.001
 
-WINDOW_SIZE = 5
+# Half a window size
+SIZE = 5
 
 SQUARE_COLOR = (0, 0, 255, 0)
 SQUARE_THICKNESS = 2
@@ -57,19 +58,19 @@ print 'Done calculating dI/dy values!'
 image_eigenvalues = np.zeros(image.shape)
 print 'Calculating minimum eigenvalues...'
 count = 1
-total_pixels = len(range(WINDOW_SIZE, img_height - WINDOW_SIZE, WINDOW_SIZE)) * \
-                len(range(WINDOW_SIZE, img_width - WINDOW_SIZE, WINDOW_SIZE))
-for y in range(WINDOW_SIZE, img_height - WINDOW_SIZE, WINDOW_SIZE):
-  for x in range(WINDOW_SIZE, img_width - WINDOW_SIZE, WINDOW_SIZE):
+total_pixels = len(range(SIZE, img_height - SIZE, SIZE)) * \
+                len(range(SIZE, img_width - SIZE, SIZE))
+for y in range(SIZE, img_height - SIZE, SIZE):
+  for x in range(SIZE, img_width - SIZE, SIZE):
     print 'Calculating minimum eigenvalues:', round(float(count) / total_pixels * 100, 4), '% complete'
     mat = np.zeros((2, 2))
-    for v in range(y - WINDOW_SIZE, y + WINDOW_SIZE):
-      for u in range(x - WINDOW_SIZE, x + WINDOW_SIZE):
+    for v in range(y - SIZE, y + SIZE):
+      for u in range(x - SIZE, x + SIZE):
         mat[0][0] += image_Ix[v][u] ** 2
         mat[0][1] += image_Ix[v][u] * image_Iy[v][u]
         mat[1][0] += image_Ix[v][u] * image_Iy[v][u]
         mat[1][1] += image_Iy[v][u] ** 2
-    mat /= (2 * WINDOW_SIZE + 1) ** 2
+    mat /= (2 * SIZE + 1) ** 2
     eigenvalues, eigenvectors = np.linalg.eig(mat)
     min_eigenvalue = min(eigenvalues)
     image_eigenvalues[y][x] = min_eigenvalue
@@ -79,8 +80,8 @@ print 'Done calculating minimum eigenvalues!'
 eigenvalues_data = []
 
 # Get a list of eigenvalues and its pixel coordinates
-for y in range(WINDOW_SIZE, img_height - WINDOW_SIZE, WINDOW_SIZE):
-  for x in range(WINDOW_SIZE, img_width - WINDOW_SIZE, WINDOW_SIZE):
+for y in range(SIZE, img_height - SIZE, SIZE):
+  for x in range(SIZE, img_width - SIZE, SIZE):
     if image_eigenvalues[y][x] > THRESHOLD:
       eigenvalues_data.append([image_eigenvalues[y][x], (int(x), int(y))])
 
@@ -102,8 +103,8 @@ for i in range(TRACKING_CORNER_COUNT):
     break
 
 for (eig, pt) in top_corners_list:
-  cv2.rectangle(colored_image, (pt[0]-WINDOW_SIZE, pt[1]-WINDOW_SIZE), \
-                (pt[0]+WINDOW_SIZE, pt[1]+WINDOW_SIZE), SQUARE_COLOR, \
+  cv2.rectangle(colored_image, (pt[0]-SIZE, pt[1]-SIZE), \
+                (pt[0]+SIZE, pt[1]+SIZE), SQUARE_COLOR, \
                 SQUARE_THICKNESS, SQUARE_LINE_TYPE, SQUARE_SHIFT)
 
 # Save new image with good features indicated
