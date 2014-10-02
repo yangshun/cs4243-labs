@@ -2,6 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 
+# Camera Intrinsic Parameters
+u_0 = 0
+v_0 = 0
+B_u = 1
+B_v = 1
+k_u = 1
+k_v = 1
+f = 1
+
+# Figure Plotting Constants
+PLOT_HORIZONTAL_COUNT = 2
+PLOT_VERTICAL_COUNT = 2
+PLOT_PADDING = 0.5
+PLOT_MARGIN = 0.2
+PLOT_FONT_SIZE = 18
+NUMBER_OF_POINTS_CUBE = 8
+
 def deg_to_rad(deg):
   # Converts an angle from degrees to radians
   return float(deg)/180 * pi
@@ -32,7 +49,7 @@ def quatmult(p, q):
   return out
 
 def quatmult_2(p, q):
-  # Alternative version of quaternion multiplication
+  # Alternative version of quaternion multiplication just for kicks
   out = [0] * 4
   out[0] = p[0]*q[0] - p[1]*q[1] - p[2]*q[2] - p[3]*q[3]
   out[1] = p[0]*q[1] + p[1]*q[0] + p[2]*q[3] - p[3]*q[2]
@@ -66,15 +83,6 @@ pts[8,:] = [-0.5, -0.5, -1]
 pts[9,:] = [0.5, -0.5, -1] 
 pts[10,:] = [0, 0.5, -1]
 
-# Constants
-u_0 = 0
-v_0 = 0
-B_u = 1
-B_v = 1
-k_u = 1
-k_v = 1
-f = 1
-
 # Calculating camera positions for each frame
 initial_pos = [0, 0, 0, -5]
 camera_pos = [initial_pos]
@@ -103,23 +111,18 @@ camera_orntns = [np.array(approx_mat(m)) for m in camera_orntns]
 quatmat_1, quatmat_2, quatmat_3, quatmat_4 = camera_orntns
 
 def perspective_proj(s_p, t_f, i_f, j_f, k_f):
+  # Calculate point after perspective projection
   sptf = s_p - t_f
   u_fp = f * float(np.dot(sptf, i_f)) / np.dot(sptf, k_f) * B_u + u_0
   v_fp = f * float(np.dot(sptf, j_f)) / np.dot(sptf, k_f) * B_v + v_0
   return [approx(p) for p in (u_fp, v_fp)]
 
 def orthographic_proj(s_p, t_f, i_f, j_f, k_f):
+  # Calculate point after orthographic projection
   sptf = s_p - t_f
   u_fp = float(np.dot(sptf, i_f)) * B_u + u_0
   v_fp = float(np.dot(sptf, j_f)) * B_v + v_0
   return [approx(p) for p in (u_fp, v_fp)]
-
-PLOT_HORIZONTAL_COUNT = 2
-PLOT_VERTICAL_COUNT = 2
-PLOT_PADDING = 0.5
-PLOT_MARGIN = 0.2
-PLOT_FONT_SIZE = 18
-NUMBER_OF_POINTS_CUBE = 8
 
 def generate_projection_plots(pts, proj_fn, proj_name):
   fig = plt.figure()
@@ -134,11 +137,10 @@ def generate_projection_plots(pts, proj_fn, proj_name):
     plt.ylabel('y')
     plt.axis('equal')
     for index, pt in list(enumerate(projected_pts)):
-      # Use red for triangle points for easy identification
+      # Use red colour for triangle points for easy identification
       plt.plot(pt[0], pt[1], 'bo' if index < NUMBER_OF_POINTS_CUBE else 'ro')
   
   plt.suptitle(proj_name, fontsize=PLOT_FONT_SIZE)
-  plt.show()
   fig.savefig(proj_name + '.png')
 
 generate_projection_plots(pts, perspective_proj, 'Perspective Projection')
