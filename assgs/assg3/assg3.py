@@ -1,3 +1,8 @@
+# CS4243 Assignment 3
+# ===================
+# Name: Tay Yang Shun
+# Matric: A0073063M
+
 import numpy as np
 import matplotlib.pyplot as plt
 from math import *
@@ -19,6 +24,63 @@ PLOT_MARGIN = 0.2
 PLOT_FONT_SIZE = 18
 NUMBER_OF_POINTS_CUBE = 8
 
+############
+# Part 1.1 #
+############
+
+def pts_set_1():
+  pts = np.zeros([11, 3])
+  pts[0,:] = [-1, -1, -1]
+  pts[1,:] = [1, -1, -1]
+  pts[2,:] = [1, 1, -1]
+  pts[3,:] = [-1, 1, -1]
+  pts[4,:] = [-1, -1, 1]
+  pts[5,:] = [1, -1, 1]
+  pts[6,:] = [1, 1, 1]
+  pts[7,:] = [-1, 1, 1]
+  pts[8,:] = [-0.5, -0.5, -1] 
+  pts[9,:] = [0.5, -0.5, -1] 
+  pts[10,:] = [0, 0.5, -1]
+  return pts
+
+def pts_set_2():
+  def create_intermediate_points(pt1, pt2, granularity):
+    new_pts = []
+    vector = np.array([x[0] - x[1] for x in zip(pt1, pt2)])
+    return [np.array(pt2) + (vector * (float(i)/granularity)) for i in range(1, granularity)]
+
+  pts = []
+  granularity = 20
+
+  # Create cube wireframe
+  pts.extend([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], \
+              [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]])
+
+  pts.extend(create_intermediate_points([-1, -1, 1], [1, -1, 1], granularity))
+  pts.extend(create_intermediate_points([1, -1, 1], [1, 1, 1], granularity))
+  pts.extend(create_intermediate_points([1, 1, 1], [-1, 1, 1], granularity))
+  pts.extend(create_intermediate_points([-1, 1, 1], [-1, -1, 1], granularity))
+
+  pts.extend(create_intermediate_points([-1, -1, -1], [1, -1, -1], granularity))
+  pts.extend(create_intermediate_points([1, -1, -1], [1, 1, -1], granularity))
+  pts.extend(create_intermediate_points([1, 1, -1], [-1, 1, -1], granularity))
+  pts.extend(create_intermediate_points([-1, 1, -1], [-1, -1, -1], granularity))
+
+  pts.extend(create_intermediate_points([1, 1, 1], [1, 1, -1], granularity))
+  pts.extend(create_intermediate_points([1, -1, 1], [1, -1, -1], granularity))
+  pts.extend(create_intermediate_points([-1, -1, 1], [-1, -1, -1], granularity))
+  pts.extend(create_intermediate_points([-1, 1, 1], [-1, 1, -1], granularity))
+
+  # Create triangle wireframe
+  pts.extend([[-0.5, -0.5, -1], [0.5, -0.5, -1], [0, 0.5, -1]])
+  pts.extend(create_intermediate_points([-0.5, -0.5, -1], [0.5, -0.5, -1], granularity))
+  pts.extend(create_intermediate_points([0.5, -0.5, -1], [0, 0.5, -1], granularity))
+  pts.extend(create_intermediate_points([0, 0.5, -1], [-0.5, -0.5, -1], granularity))
+
+  return np.array(pts)
+
+pts = pts_set_1()
+
 def deg_to_rad(deg):
   # Converts an angle from degrees to radians
   return float(deg)/180 * pi
@@ -37,6 +99,10 @@ def approx_mat(mat):
   for pt in np.nditer(mat, op_flags=['readwrite']):
     pt[...] = approx(pt)
   return mat
+
+############
+# Part 1.2 #
+############
 
 def quatmult(p, q):
   # Performs the multiplication of two quaternions
@@ -62,6 +128,10 @@ def quatrot(p, q):
   # p is the point to be rotated and q is the rotation quaternion
   return [approx(x) for x in quatmult(quatmult(q, p), conjugate(q))]
 
+############
+# Part 1.3 #
+############
+
 def quat2rot(q):
   # Returns a 3x3 rotation matrix parameterized with
   # the elements of an input quaternion
@@ -69,19 +139,6 @@ def quat2rot(q):
   return np.matrix([[q_0**2 + q_1**2 - q_2**2 - q_3**2, 2*(q_1*q_2 - q_0*q_3), 2*(q_1*q_3 + q_0*q_2)],
                     [2*(q_1*q_2 + q_0*q_3), q_0**2 + q_2**2 - q_1**2 - q_3**2, 2*(q_2*q_3 - q_0*q_1)],
                     [2*(q_1*q_3 - q_0*q_2), 2*(q_2*q_3 + q_0*q_1), q_0**2 + q_3**2 - q_1**2 - q_2**2]])
-
-pts = np.zeros([11, 3]) 
-pts[0,:] = [-1, -1, -1]
-pts[1,:] = [1, -1, -1]
-pts[2,:] = [1, 1, -1]
-pts[3,:] = [-1, 1, -1]
-pts[4,:] = [-1, -1, 1]
-pts[5,:] = [1, -1, 1]
-pts[6,:] = [1, 1, 1]
-pts[7,:] = [-1, 1, 1]
-pts[8,:] = [-0.5, -0.5, -1] 
-pts[9,:] = [0.5, -0.5, -1] 
-pts[10,:] = [0, 0.5, -1]
 
 # Calculating camera positions for each frame
 initial_pos = [0, 0, 0, -5]
@@ -109,6 +166,10 @@ for i in range(3):
 camera_orntns = [np.array(approx_mat(m)) for m in camera_orntns]
 # Camera orientations for each frame
 quatmat_1, quatmat_2, quatmat_3, quatmat_4 = camera_orntns
+
+##########
+# Part 2 #
+##########
 
 def perspective_proj(s_p, t_f, i_f, j_f, k_f):
   # Calculate point after perspective projection
@@ -138,7 +199,7 @@ def generate_projection_plots(pts, proj_fn, proj_name):
     plt.axis('equal')
     for index, pt in list(enumerate(projected_pts)):
       # Use red colour for triangle points for easy identification
-      plt.plot(pt[0], pt[1], 'bo' if index < NUMBER_OF_POINTS_CUBE else 'ro')
+      plt.plot(pt[0], pt[1], 'bo' if index < 8+(20 - 1)*12 else 'ro')
   
   plt.suptitle(proj_name, fontsize=PLOT_FONT_SIZE)
   fig.savefig(proj_name + '.png')
